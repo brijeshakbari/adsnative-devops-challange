@@ -4,6 +4,6 @@
 2. Install Ansible
 3. Install Virtualbox
 4. Clone this repo : https://github.com/brijeshakbari/adsnative-devops-challange.git
-5. Go to AdsNative-Devops-Challange directory
-6. vagrant up
-7. go to 192.168.33.15 or devops.adsnative.com
+5. Go to adsnative-devops-challange directory
+6. Do "vagrant up"
+7. Go to 192.168.33.15 or devops.adsnative.com

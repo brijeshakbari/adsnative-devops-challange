@@ -8,5 +8,4 @@ setuid nobody
 setgid nogroup
 chdir {{ repository_path }}
 
-exec gunicorn app:app --bind unix:/tmp/adsnative.sock --workers 3
-#exec gunicorn app:app --bind unix:/tmp/adsnative.sock --workers 3 >> /var/log/adsnative/app.log 2>&1 
+exec gunicorn app:app --bind unix:/tmp/adsnative.sock >> /var/log/adsnative/app.log 2>&1 

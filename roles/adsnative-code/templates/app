@@ -1,5 +1,5 @@
 /var/log/adsnative/app.log {
-	    hourly
+	hourly
         missingok
         rotate 7
         compress

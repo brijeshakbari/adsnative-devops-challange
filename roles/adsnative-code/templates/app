@@ -1,0 +1,8 @@
+/var/log/adsnative/app.log {
+	    hourly
+        missingok
+        rotate 7
+        compress
+        notifempty
+        create 644 root root
+}

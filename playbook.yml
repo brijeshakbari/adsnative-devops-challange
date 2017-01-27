@@ -1,0 +1,26 @@
+---
+- name: Install And Configure Nginx
+  hosts: all
+  user: vagrant
+  sudo: yes
+  roles:
+        - nginx
+
+- name: Deploy The Flask Application
+  hosts: all
+  sudo: yes
+  user: vagrant
+  roles:
+        - adsnative-code
+
+- name: Install Redis Server
+  hosts: all
+  sudo: yes
+  user: vagrant
+  roles:
+        - redis
+
+#- name: Set timezone to EST
+#  when: ansible_date_time.tz != 'EST'
+#  command: timedatectl set-timezone EST
+

@@ -1,0 +1,93 @@
+- name: Configure application
+  hosts: all
+  become: true
+  become_method: sudo
+  vars:
+      repository_url: https://github.com/picatcha/adsnative_devops_challenge
+      repository_path: /webapps/adsnative
+      redis_port: 6379
+      redis_databases: 1
+
+  tasks:
+    - name: Install packages
+      apt: update_cache=yes name={{ item }} state=present
+      with_items:
+        - git
+        - python-pip
+        - nginx
+
+    - name: Clone repository
+      git: repo='{{ repository_url }}' dest='{{ repository_path }}'
+
+    - name: install various libraries with pip
+      action: pip name={{item}} state=present
+      with_items:
+        - flask
+        - supervisor
+        - gunicorn
+        - redis
+      sudo: true
+
+    - name: Copy Upstart configuration
+      template: src=AdsNative.upstart.j2 dest=/etc/init/AdsNative.conf
+
+    - name: Make sure our server is running
+      service: name=AdsNative state=started
+
+    - name: Copy Nginx site
+      template: src=AdsNative.nginx.j2 dest=/etc/nginx/sites-enabled/AdsNative
+      notify:
+        - restart nginx
+
+    - name: Remove any default sites
+      file: path=/etc/nginx/sites-enabled/default state=absent
+      notify:
+        - restart nginx
+
+    - name: Make sure nginx is running
+      service: name=nginx state=started
+
+    - name: Install Redis Server
+      apt:
+        pkg=redis-server
+        state=installed
+      register: redisinstalled
+      notify:
+      - Start Redis
+
+    - name: Edit Redis Configuration
+      when: redisinstalled|success
+      lineinfile:
+        dest=/etc/redis/redis.conf 
+        state=present regexp="^#?bind" 
+        line="#bind 127.0.0.1"
+      register: redisconfig
+      notify:
+      - Restart Redis
+
+    - name: Ensure Redis is present
+      apt: pkg=redis-server state=latest
+      sudo: true
+
+    - name: Ensure Redis is started
+      service: name=redis-server state=started enabled=yes
+      sudo: true
+
+    #- name: Ensure Redis Configuration
+    #  template: src=redis.conf.j2 dest=/etc/redis/redis.conf owner=root group=root mode=0644
+    #  sudo: true
+    #  notify: Redis Restart
+
+  handlers:
+    - name: restart nginx
+      service: name=nginx state=restarted
+
+    - name: Restart Redis
+      service: name=redis-server state=restarted enabled=yes
+      sudo: true
+
+    - name: Start Redis
+      service: name=redis-server state=started enabled=yes
+        
+        
+

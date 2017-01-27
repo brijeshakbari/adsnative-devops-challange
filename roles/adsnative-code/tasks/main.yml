@@ -1,0 +1,42 @@
+---
+
+    - name: Install packages
+      apt: update_cache=yes name={{ item }} state=present
+      with_items:
+        - git
+        - python-pip
+        - nginx
+
+    - name: Clone repository
+      git:
+        repo: https://github.com/picatcha/adsnative_devops_challenge
+        dest: /webapps/adsnative
+
+    - name: install various libraries with pip
+      action: pip name={{item}} state=present
+      with_items:
+        - flask
+        - supervisor
+        - gunicorn
+        - redis
+      sudo: true
+
+    - name: Copy Upstart configuration
+      template: src=adsnative.upstart.j2 dest=/etc/init/adsnative.conf
+
+    - name: Creates log directory
+      file: path=/var/log/adsnative state=directory mode=0775
+
+    - name: Create a app.log file in /var/log/adsnative
+      file: path=/var/log/adsnative/app.log state=touch mode=0777
+
+    - name: Copy app log rotation configuration
+      template: src=app dest=/etc/cron.hourly/app mode="a+x"
+      sudo: true
+
+    - name: Make sure our server is running
+      service: name=adsnative state=started
+
+    - name: Set timezone to EST
+      when: ansible_date_time.tz != 'EST'
+      command: timedatectl set-timezone EST

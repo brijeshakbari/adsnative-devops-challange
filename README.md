@@ -5,5 +5,4 @@
 3. Install virtualbox
 4. Go to AdsNative-Devops-Challange directory
 5. vagrant up
-6. vagrant provision
-7. go to 192.168.33.15 or devops.adsnative.com
+6. go to 192.168.33.15 or devops.adsnative.com
